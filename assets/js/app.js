@@ -262,6 +262,40 @@
     });
   }
 
+  // Registration phone field: allow digits and an optional leading plus only.
+  // Server-side validation remains authoritative for the final submitted value.
+  var phoneInput = document.getElementById("phone");
+  if (phoneInput) {
+    function sanitizePhone(value) {
+      var clean = String(value).replace(/[^0-9+]/g, "");
+      if (clean.charAt(0) === "+") {
+        clean = "+" + clean.slice(1).replace(/\+/g, "");
+      } else {
+        clean = clean.replace(/\+/g, "");
+      }
+      return clean.slice(0, 13);
+    }
+
+    phoneInput.addEventListener("input", function () {
+      var clean = sanitizePhone(phoneInput.value);
+      if (clean !== phoneInput.value) phoneInput.value = clean;
+    });
+
+    phoneInput.addEventListener("paste", function (event) {
+      event.preventDefault();
+      var pasted = event.clipboardData ? event.clipboardData.getData("text") : "";
+      var clean = sanitizePhone(pasted);
+      var start = phoneInput.selectionStart || 0;
+      var end = phoneInput.selectionEnd || start;
+      phoneInput.setRangeText(clean, start, end, "end");
+      phoneInput.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
+    phoneInput.addEventListener("drop", function (event) {
+      event.preventDefault();
+    });
+  }
+
   // Checkout form (customer/payment.php): inject the cart as JSON right
   // before the normal POST submit. The server recalculates every total.
   var checkoutForm = document.getElementById("checkoutForm");

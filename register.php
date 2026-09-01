@@ -49,6 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'Please enter a valid email address.';
+        } elseif ($email !== '' && !preg_match('/@gmail\\.com$/i', $email)) {
+            $errors[] = 'Please use a Gmail address ending in @gmail.com.';
+        }
+
+        $phoneDigits = preg_replace('/[^0-9+]/', '', $phone);
+        if ($phone !== '' && !preg_match('/^(?:09[0-9]{9}|\\+639[0-9]{9})$/', $phoneDigits)) {
+            $errors[] = 'Please enter a valid Philippine phone number, such as 09171234567.';
         }
         if (strlen($password) < 8) {
             $errors[] = 'Password must be at least 8 characters.';
@@ -68,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $ok = db_exec(
                 'INSERT INTO users (full_name, username, email, password, phone, address, barangay, landmark, role, status) VALUES (?,?,?,?,?,?,?,?,\'customer\',\'active\')',
-                [$fullName, $username, $email, $hash, $phone, $address, $barangay, $landmark],
+                [$fullName, $username, $email, $hash, $phoneDigits, $address, $barangay, $landmark],
                 $dbError
             );
 
@@ -114,9 +121,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="field"><label for="fname">First name</label><input id="fname" name="first_name" value="<?= e($old['first_name'] ?? '') ?>" required></div>
         <div class="field"><label for="lname">Last name</label><input id="lname" name="last_name" value="<?= e($old['last_name'] ?? '') ?>" required></div>
       </div>
-      <div class="form-row">
-        <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" value="<?= e($old['email'] ?? '') ?>" required></div>
-        <div class="field"><label for="phone">Mobile number</label><input id="phone" name="phone" type="tel" placeholder="0917-000-0000" value="<?= e($old['phone'] ?? '') ?>" required></div>
+        <div class="form-row">
+        <div class="field"><label for="email">Gmail address</label><input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="name@gmail.com" value="<?= e($old['email'] ?? '') ?>" required pattern="[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@gmail\.com" title="Use a valid Gmail address ending in @gmail.com."></div>
+        <div class="field"><label for="phone">Mobile number</label><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0917-000-0000" value="<?= e($old['phone'] ?? '') ?>" maxlength="17" required pattern="(?:09[0-9]{9}|\+639[0-9]{9})" title="Use a Philippine mobile number, such as 09171234567."></div>
       </div>
       <div class="field"><label for="address">Complete delivery address</label><input id="address" name="address" value="<?= e($old['address'] ?? '') ?>" required></div>
       <div class="form-row">
