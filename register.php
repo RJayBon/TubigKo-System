@@ -44,6 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($firstName === '' || $lastName === '' || $email === '' || $phone === '' || $address === '' || $barangay === '') {
             $errors[] = 'Please fill in all required fields.';
         }
+        if ($firstName !== '' && !preg_match('/^[\\p{L}]+(?:[ ]+[\\p{L}]+)*$/u', $firstName)) {
+            $errors[] = 'First name may contain letters and spaces only.';
+        }
+        if ($lastName !== '' && !preg_match('/^[\\p{L}]+(?:[ ]+[\\p{L}]+)*$/u', $lastName)) {
+            $errors[] = 'Last name may contain letters and spaces only.';
+        }
         if ($barangay !== '' && !preg_match('/^[\\p{L}]+(?:[ ]+[\\p{L}]+)*$/u', $barangay)) {
             $errors[] = 'Barangay may contain letters and spaces only.';
         }
@@ -118,8 +124,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="post" action="register.php">
       <?= csrf_field() ?>
       <div class="form-row">
-        <div class="field"><label for="fname">First name</label><input id="fname" name="first_name" value="<?= e($old['first_name'] ?? '') ?>" required></div>
-        <div class="field"><label for="lname">Last name</label><input id="lname" name="last_name" value="<?= e($old['last_name'] ?? '') ?>" required></div>
+        <div class="field"><label for="fname">First name</label><input id="fname" name="first_name" value="<?= e($old['first_name'] ?? '') ?>" maxlength="60" required pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+(?: [A-Za-zÀ-ÖØ-öø-ÿ]+)*" title="Use letters and spaces only."></div>
+        <div class="field"><label for="lname">Last name</label><input id="lname" name="last_name" value="<?= e($old['last_name'] ?? '') ?>" maxlength="60" required pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+(?: [A-Za-zÀ-ÖØ-öø-ÿ]+)*" title="Use letters and spaces only."></div>
       </div>
         <div class="form-row">
         <div class="field"><label for="email">Gmail address</label><input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="name@gmail.com" value="<?= e($old['email'] ?? '') ?>" required pattern="[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@gmail\.com" title="Use a valid Gmail address ending in @gmail.com."></div>

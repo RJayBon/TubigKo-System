@@ -262,6 +262,40 @@
     });
   }
 
+  // Registration name fields: keep only Unicode letters and spaces.
+  function wireLettersOnlyInput(id) {
+    var input = document.getElementById(id);
+    if (!input) return;
+
+    function sanitizeName(value) {
+      return String(value)
+        .replace(/[^\p{L} ]/gu, "")
+        .replace(/ {2,}/g, " ")
+        .replace(/^ +/, "");
+    }
+
+    input.addEventListener("input", function () {
+      var clean = sanitizeName(input.value);
+      if (clean !== input.value) input.value = clean;
+    });
+
+    input.addEventListener("paste", function (event) {
+      event.preventDefault();
+      var pasted = event.clipboardData ? event.clipboardData.getData("text") : "";
+      var clean = sanitizeName(pasted);
+      var start = input.selectionStart || 0;
+      var end = input.selectionEnd || start;
+      input.setRangeText(clean, start, end, "end");
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
+    input.addEventListener("drop", function (event) {
+      event.preventDefault();
+    });
+  }
+  wireLettersOnlyInput("fname");
+  wireLettersOnlyInput("lname");
+
   // Registration phone field: allow digits and an optional leading plus only.
   // Server-side validation remains authoritative for the final submitted value.
   var phoneInput = document.getElementById("phone");
