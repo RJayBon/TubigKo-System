@@ -67,7 +67,12 @@ $NOTIFICATIONS = load_notifications();
   </section>
 
   <section class="card">
-    <div class="card__head"><h3>Sent notifications</h3><span class="spacer badge"><?= count($NOTIFICATIONS) ?> total</span></div>
+    <div class="card__head"><h3>Sent notifications</h3>
+      <span class="realtime-status realtime-status--checking notification-live-status" data-notification-status role="status" aria-live="polite">
+        <span class="realtime-status__dot" aria-hidden="true"></span><span data-notification-status-text>Checking updates...</span>
+      </span>
+      <span class="spacer badge"><?= count($NOTIFICATIONS) ?> total</span>
+    </div>
     <div>
       <?php if (!$NOTIFICATIONS): ?><p class="empty">No notifications sent yet.</p><?php endif; ?>
       <?php foreach ($NOTIFICATIONS as $n): ?>

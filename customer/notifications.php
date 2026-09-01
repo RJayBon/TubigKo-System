@@ -19,9 +19,12 @@ $mine = load_notifications((int)$me['id']);
 $unreadCount = count(array_filter($mine, fn($n) => !$n['read']));
 ?>
 <section class="card">
-  <div class="card__head">
-    <h3>View Notification</h3>
-    <div class="spacer toolbar no-print" style="gap:.6rem">
+    <div class="card__head">
+      <h3>View Notification</h3>
+      <span class="realtime-status realtime-status--checking notification-live-status" data-notification-status role="status" aria-live="polite">
+        <span class="realtime-status__dot" aria-hidden="true"></span><span data-notification-status-text>Checking updates...</span>
+      </span>
+      <div class="spacer toolbar no-print" style="gap:.6rem">
       <span class="badge badge--warn"><?= $unreadCount ?> unread</span>
       <?php if ($unreadCount > 0): ?>
         <form method="post" action="notifications.php">

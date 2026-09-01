@@ -36,6 +36,9 @@ $__unread = $__me ? (int)(db_one(
         <p class="topbar__sub"><?= $ROLE === 'admin' ? 'Administrator workspace' : 'Customer workspace' ?><?= $__me ? ' &middot; ' . e($__me['full_name']) : '' ?></p>
       </div>
       <div class="topbar__right">
+        <span class="realtime-status realtime-status--checking" data-notification-status role="status" aria-live="polite" title="Notification updates are being checked">
+          <span class="realtime-status__dot" aria-hidden="true"></span><span data-notification-status-text>Checking updates...</span>
+        </span>
         <a class="icon-btn" href="<?= $BASE ?>/<?= $ROLE ?>/notifications.php" aria-label="Notifications" style="position:relative">
           &#128276;<span class="notif-count" data-notification-count<?= $__unread > 0 ? '' : ' hidden' ?>><?= $__unread > 9 ? '9+' : $__unread ?></span>
         </a>

@@ -264,6 +264,20 @@
     var lastLatestId = null;
     var requestInFlight = false;
 
+    function setConnectionState(state, label) {
+      document.querySelectorAll("[data-notification-status]").forEach(function (status) {
+        status.classList.remove("realtime-status--checking", "realtime-status--connected", "realtime-status--offline");
+        status.classList.add("realtime-status--" + state);
+        var text = status.querySelector("[data-notification-status-text]");
+        if (text) text.textContent = label;
+        status.title = state === "connected"
+          ? "Notification updates are connected"
+          : state === "offline"
+            ? "Notification updates are unavailable; retrying automatically"
+            : "Checking for new notifications";
+      });
+    }
+
     function updateNotificationBadges(unreadCount) {
       var count = Math.max(0, Number(unreadCount) || 0);
       document.querySelectorAll("[data-notification-count]").forEach(function (badge) {
@@ -277,6 +291,7 @@
     function refreshNotifications() {
       if (requestInFlight || document.visibilityState !== "visible") return;
       requestInFlight = true;
+      setConnectionState("checking", "Checking updates...");
 
       fetch(feedUrl, {
         method: "GET",
@@ -289,7 +304,8 @@
           return response.json();
         })
         .then(function (data) {
-          if (!data || data.ok !== true) return;
+          if (!data || data.ok !== true) throw new Error("Invalid notification feed");
+          setConnectionState("connected", "Live updates on");
           updateNotificationBadges(data.unread_count);
 
           if (onNotificationPage && lastLatestId !== null && Number(data.latest_id) !== lastLatestId) {
@@ -299,6 +315,7 @@
           lastLatestId = Number(data.latest_id) || 0;
         })
         .catch(function () {
+          setConnectionState("offline", "Offline - retrying");
           // A temporary network error should not interrupt the rest of the UI.
         })
         .finally(function () {
