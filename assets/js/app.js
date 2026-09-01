@@ -262,6 +262,33 @@
     });
   }
 
+  // Registration username field: keep only letters, numbers, dots, underscores, and hyphens.
+  var usernameInput = document.getElementById("username");
+  if (usernameInput) {
+    function sanitizeUsername(value) {
+      return String(value).replace(/[^A-Za-z0-9._-]/g, "").slice(0, 30);
+    }
+
+    usernameInput.addEventListener("input", function () {
+      var clean = sanitizeUsername(usernameInput.value);
+      if (clean !== usernameInput.value) usernameInput.value = clean;
+    });
+
+    usernameInput.addEventListener("paste", function (event) {
+      event.preventDefault();
+      var pasted = event.clipboardData ? event.clipboardData.getData("text") : "";
+      var clean = sanitizeUsername(pasted);
+      var start = usernameInput.selectionStart || 0;
+      var end = usernameInput.selectionEnd || start;
+      usernameInput.setRangeText(clean, start, end, "end");
+      usernameInput.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
+    usernameInput.addEventListener("drop", function (event) {
+      event.preventDefault();
+    });
+  }
+
   // Registration name fields: keep only Unicode letters and spaces.
   function wireLettersOnlyInput(id) {
     var input = document.getElementById(id);

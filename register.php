@@ -10,25 +10,13 @@ if (is_logged_in()) {
 $errors = [];
 $old = [];
 
-function make_username(string $email): string
-{
-    $base = strtolower(preg_replace('/[^a-z0-9._-]/i', '', strstr($email, '@', true) ?: 'user'));
-    $base = $base !== '' ? $base : 'user';
-    $username = $base;
-    $i = 1;
-    while (db_one('SELECT id FROM users WHERE username = ?', [$username])) {
-        $username = $base . $i;
-        $i++;
-    }
-    return $username;
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_verify()) {
         $errors[] = 'Your session expired. Please reload the page and try again.';
     } else {
         $old = $_POST;
 
+        $username  = trim($_POST['username'] ?? '');
         $firstName = trim($_POST['first_name'] ?? '');
         $lastName  = trim($_POST['last_name'] ?? '');
         $email     = trim($_POST['email'] ?? '');
@@ -41,8 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Registration is always for a customer account — a submitted
         // "role" field, if any, is ignored so nobody can self-register as admin.
 
-        if ($firstName === '' || $lastName === '' || $email === '' || $phone === '' || $address === '' || $barangay === '') {
+        if ($username === '' || $firstName === '' || $lastName === '' || $email === '' || $phone === '' || $address === '' || $barangay === '') {
             $errors[] = 'Please fill in all required fields.';
+        }
+        if ($username !== '' && !preg_match('/^[A-Za-z0-9._-]{3,30}$/', $username)) {
+            $errors[] = 'Username must be 3-30 characters using letters, numbers, dots, underscores, or hyphens only.';
         }
         if ($firstName !== '' && !preg_match('/^[\\p{L}]+(?:[ ]+[\\p{L}]+)*$/u', $firstName)) {
             $errors[] = 'First name may contain letters and spaces only.';
@@ -70,13 +61,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Passwords do not match.';
         }
 
+        if (!$errors && db_one('SELECT id FROM users WHERE username = ?', [$username])) {
+            $errors[] = 'That username is already taken. Please choose another one.';
+        }
         if (!$errors && db_one('SELECT id FROM users WHERE email = ?', [$email])) {
             $errors[] = 'An account with that email already exists.';
         }
 
         if (!$errors) {
             $fullName = trim($firstName . ' ' . $lastName);
-            $username = make_username($email);
             $hash = password_hash($password, PASSWORD_DEFAULT);
 
             $ok = db_exec(
@@ -86,8 +79,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
 
             if ($ok) {
-                flash_set('success', 'Registration successful! Your username is "' . $username . '". You can now sign in.');
-                header('Location: login.php');
+                login_user([
+                    'id' => (int)db_last_insert_id(),
+                    'full_name' => $fullName,
+                    'role' => 'customer',
+                ]);
+                flash_set('success', 'Registration successful. Welcome to TubigKo!');
+                header('Location: customer/gallons.php');
                 exit;
             }
             $errors[] = $dbError ?: 'Registration failed. Please try again.';
@@ -123,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <form method="post" action="register.php">
       <?= csrf_field() ?>
+      <div class="field"><label for="username">Username</label><input id="username" name="username" value="<?= e($old['username'] ?? '') ?>" minlength="3" maxlength="30" autocomplete="username" required pattern="[A-Za-z0-9._-]{3,30}" title="Use 3-30 letters, numbers, dots, underscores, or hyphens."><small class="hint">Choose 3-30 characters using letters, numbers, dots, underscores, or hyphens.</small></div>
       <div class="form-row">
         <div class="field"><label for="fname">First name</label><input id="fname" name="first_name" value="<?= e($old['first_name'] ?? '') ?>" maxlength="60" required pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+(?: [A-Za-zÀ-ÖØ-öø-ÿ]+)*" title="Use letters and spaces only."></div>
         <div class="field"><label for="lname">Last name</label><input id="lname" name="last_name" value="<?= e($old['last_name'] ?? '') ?>" maxlength="60" required pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+(?: [A-Za-zÀ-ÖØ-öø-ÿ]+)*" title="Use letters and spaces only."></div>
