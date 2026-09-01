@@ -385,7 +385,8 @@
   (function () {
     var appBody = document.body;
     var feedUrl = appBody && appBody.getAttribute("data-notification-feed");
-    if (!feedUrl) return;
+    var notificationRole = appBody && appBody.getAttribute("data-notification-role");
+    if (!feedUrl || notificationRole === "admin") return;
 
     var onNotificationPage = appBody.getAttribute("data-notification-page") === "1";
     var lastLatestId = null;
@@ -403,6 +404,25 @@
             ? "Notification updates are unavailable; retrying automatically"
             : "Checking for new notifications";
       });
+    }
+
+    function showNotificationToast(notification) {
+      if (!notification || onNotificationPage) return;
+      var toast = document.getElementById("notificationToast");
+      if (!toast) {
+        toast = document.createElement("a");
+        toast.id = "notificationToast";
+        toast.className = "notification-toast";
+        toast.href = (document.body.getAttribute("data-notification-feed") || "").replace("notifications-feed.php", "customer/notifications.php");
+        toast.setAttribute("role", "status");
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = '<strong>' + escapeHtml(notification.title || "New notification") + '</strong><span>' + escapeHtml(notification.message || "You have a new notification.") + '</span>';
+      toast.classList.add("is-visible");
+      window.clearTimeout(showNotificationToast.timer);
+      showNotificationToast.timer = window.setTimeout(function () {
+        toast.classList.remove("is-visible");
+      }, 7000);
     }
 
     function updateNotificationBadges(unreadCount) {
@@ -435,11 +455,18 @@
           setConnectionState("connected", "Live updates on");
           updateNotificationBadges(data.unread_count);
 
-          if (onNotificationPage && lastLatestId !== null && Number(data.latest_id) !== lastLatestId) {
-            window.location.reload();
-            return;
+          var latestId = Number(data.latest_id) || 0;
+          if (lastLatestId !== null && latestId !== lastLatestId) {
+            if (onNotificationPage) {
+              window.location.reload();
+              return;
+            }
+            var newest = (data.notifications || []).find(function (item) {
+              return Number(item.db_id) === latestId;
+            });
+            showNotificationToast(newest);
           }
-          lastLatestId = Number(data.latest_id) || 0;
+          lastLatestId = latestId;
         })
         .catch(function () {
           setConnectionState("offline", "Offline - retrying");
@@ -451,7 +478,7 @@
     }
 
     refreshNotifications();
-    window.setInterval(refreshNotifications, 10000);
+    window.setInterval(refreshNotifications, 5000);
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible") refreshNotifications();
     });

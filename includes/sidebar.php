@@ -28,7 +28,7 @@ $nav = $ROLE === 'admin' ? $adminNav : $customerNav;
     <p class="nav__label"><?= $ROLE === 'admin' ? 'Administration' : 'My Account' ?></p>
     <?php foreach ($nav as $item): ?>
       <a class="nav__link<?= $current === $item[0] ? ' is-active' : '' ?>" href="<?= $BASE ?>/<?= $ROLE ?>/<?= $item[0] ?>">
-        <span class="nav__icon"><?= $item[2] ?></span><?= $item[1] ?><?php if ($item[0] === 'notifications.php'): ?><span class="notif-count" data-notification-count style="position:static;margin-left:.4rem<?= $__unread > 0 ? '' : ';display:none' ?>"><?= $__unread > 9 ? '9+' : $__unread ?></span><?php endif; ?>
+        <span class="nav__icon"><?= $item[2] ?></span><?= $item[1] ?><?php if ($item[0] === 'notifications.php' && $ROLE !== 'admin'): ?><span class="notif-count" data-notification-count style="position:static;margin-left:.4rem<?= $__unread > 0 ? '' : ';display:none' ?>"><?= $__unread > 9 ? '9+' : $__unread ?></span><?php endif; ?>
       </a>
     <?php endforeach; ?>
   </nav>
