@@ -230,14 +230,14 @@
     });
   });
 
-  // Registration Barangay field: keep only Unicode letters and spaces.
+  // Registration Barangay field: keep only Unicode letters, numbers, and spaces.
   // The input event also catches browser autofill and pasted content; the
   // paste/drop handlers sanitize the clipboard payload before insertion.
   var barangayInput = document.getElementById("brgy");
   if (barangayInput) {
     function sanitizeBarangay(value) {
       return String(value)
-        .replace(/[^\p{L} ]/gu, "")
+        .replace(/[^\p{L}\p{N} ]/gu, "")
         .replace(/ {2,}/g, " ")
         .replace(/^ +/, "");
     }
