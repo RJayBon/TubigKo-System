@@ -253,6 +253,67 @@
   if (document.getElementById("cartLines")) renderCart();
 
   // ---------------------------------------------------------------
+  // Near-real-time notifications
+  // ---------------------------------------------------------------
+  (function () {
+    var appBody = document.body;
+    var feedUrl = appBody && appBody.getAttribute("data-notification-feed");
+    if (!feedUrl) return;
+
+    var onNotificationPage = appBody.getAttribute("data-notification-page") === "1";
+    var lastLatestId = null;
+    var requestInFlight = false;
+
+    function updateNotificationBadges(unreadCount) {
+      var count = Math.max(0, Number(unreadCount) || 0);
+      document.querySelectorAll("[data-notification-count]").forEach(function (badge) {
+        badge.textContent = count > 9 ? "9+" : String(count);
+        badge.hidden = count === 0;
+        // The sidebar badge has an inline display rule for its initial state.
+        badge.style.display = count === 0 ? "none" : "";
+      });
+    }
+
+    function refreshNotifications() {
+      if (requestInFlight || document.visibilityState !== "visible") return;
+      requestInFlight = true;
+
+      fetch(feedUrl, {
+        method: "GET",
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { Accept: "application/json" }
+      })
+        .then(function (response) {
+          if (!response.ok) throw new Error("Notification feed unavailable");
+          return response.json();
+        })
+        .then(function (data) {
+          if (!data || data.ok !== true) return;
+          updateNotificationBadges(data.unread_count);
+
+          if (onNotificationPage && lastLatestId !== null && Number(data.latest_id) !== lastLatestId) {
+            window.location.reload();
+            return;
+          }
+          lastLatestId = Number(data.latest_id) || 0;
+        })
+        .catch(function () {
+          // A temporary network error should not interrupt the rest of the UI.
+        })
+        .finally(function () {
+          requestInFlight = false;
+        });
+    }
+
+    refreshNotifications();
+    window.setInterval(refreshNotifications, 10000);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") refreshNotifications();
+    });
+  })();
+
+  // ---------------------------------------------------------------
   // Small helpers
   // ---------------------------------------------------------------
   function peso(n) {

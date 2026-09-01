@@ -48,10 +48,4 @@ $unreadCount = count(array_filter($mine, fn($n) => !$n['read']));
     <?php endforeach; ?>
   </div>
 </section>
-<?php
-// Viewing this page marks everything as read for a natural "seen" state,
-// matching the unread-count badge shown in the sidebar/topbar.
-if ($unreadCount > 0) {
-    mark_notifications_read((int)$me['id']);
-}
-include __DIR__ . '/../includes/footer.php';
+<?php include __DIR__ . '/../includes/footer.php';

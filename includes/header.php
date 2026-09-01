@@ -25,7 +25,7 @@ $__unread = $__me ? (int)(db_one(
 <meta name="description" content="TubigKo Water Refilling Station System - manage customers, gallons, payments, deliveries and notifications.">
 <link rel="stylesheet" href="<?= $BASE ?>/assets/css/style.css">
 </head>
-<body class="app">
+<body class="app" data-notification-feed="<?= e($BASE) ?>/notifications-feed.php" data-notification-page="<?= basename($_SERVER['PHP_SELF'] ?? '') === 'notifications.php' ? '1' : '0' ?>">
 <div class="layout">
 <?php include __DIR__ . '/sidebar.php'; ?>
   <main class="main">
@@ -37,7 +37,7 @@ $__unread = $__me ? (int)(db_one(
       </div>
       <div class="topbar__right">
         <a class="icon-btn" href="<?= $BASE ?>/<?= $ROLE ?>/notifications.php" aria-label="Notifications" style="position:relative">
-          &#128276;<?php if ($__unread > 0): ?><span class="notif-count"><?= $__unread > 9 ? '9+' : $__unread ?></span><?php endif; ?>
+          &#128276;<span class="notif-count" data-notification-count<?= $__unread > 0 ? '' : ' hidden' ?>><?= $__unread > 9 ? '9+' : $__unread ?></span>
         </a>
         <div class="avatar" aria-hidden="true"><?= e($__initials) ?></div>
         <a class="btn btn--ghost" href="<?= $BASE ?>/logout.php">Sign out</a>
