@@ -21,9 +21,13 @@ $DELIVERIES = load_deliveries();
       <span class="brand__mark">&#128167;</span>
       <span><strong>TubigKo</strong><small>Water Refilling Station</small></span>
     </a>
-    <div style="display:flex;gap:.6rem">
-      <a class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.35)" href="login.php">Sign in</a>
-      <a class="btn btn--light" href="register.php">Register</a>
+    <div class="hero__nav-actions">
+      <?php if (is_logged_in() && current_role() === 'customer'): ?>
+        <a class="btn btn--light" href="customer/gallons.php">Dashboard</a>
+      <?php else: ?>
+        <a class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.35)" href="login.php">Sign in</a>
+        <a class="btn btn--light" href="register.php">Register</a>
+      <?php endif; ?>
     </div>
   </nav>
   <?php foreach (flash_all() as $type => $msg): ?>
@@ -34,7 +38,7 @@ $DELIVERIES = load_deliveries();
       <h2>Clean water, ordered in seconds and tracked to your door.</h2>
       <p class="lead">TubigKo handles customer accounts, gallon inventory, payments, delivery process and notifications in one simple system for your refilling station.</p>
       <div class="hero__actions">
-        <a class="btn btn--light" href="customer/gallons.php">Order gallons</a>
+        <a class="btn btn--light" href="customer/gallons.php"><?= is_logged_in() && current_role() === 'customer' ? 'Open dashboard' : 'Order gallons' ?></a>
       </div>
       <div class="hero__stats">
         <div><b><?= count($CUSTOMERS) ?>+</b><span>Registered customers</span></div>

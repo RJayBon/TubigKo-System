@@ -11,6 +11,7 @@ $PAYMENTS  = load_payments();
 $DELIVERIES = load_deliveries();
 
 $ongoing = array_values(array_filter($DELIVERIES, fn($d) => $d['status'] === 'Ongoing'));
+$closedDeliveries = array_values(array_filter($DELIVERIES, fn($d) => in_array($d['raw_status'], ['delivered', 'cancelled'], true)));
 $sales = array_sum(array_map(fn($p) => $p['raw_status'] === 'paid' ? $p['amount'] : 0, $PAYMENTS));
 $pending = count(array_filter($PAYMENTS, fn($p) => $p['raw_status'] === 'pending'));
 ?>
@@ -18,7 +19,7 @@ $pending = count(array_filter($PAYMENTS, fn($p) => $p['raw_status'] === 'pending
   <div class="stat"><p class="stat__label">Registered customers</p><p class="stat__value"><?= count($CUSTOMERS) ?></p><p class="stat__hint"><?= count(array_filter($CUSTOMERS, fn($c)=>$c['status']==='Active')) ?> active accounts</p></div>
   <div class="stat"><p class="stat__label">Gallons in stock</p><p class="stat__value"><?= array_sum(array_column($GALLONS,'stock')) ?></p><p class="stat__hint"><?= count($GALLONS) ?> gallon variants</p></div>
   <div class="stat"><p class="stat__label">Collected payments</p><p class="stat__value"><?= peso($sales) ?></p><p class="stat__hint"><?= $pending ?> pending payments</p></div>
-  <div class="stat"><p class="stat__label">Ongoing deliveries</p><p class="stat__value"><?= count($ongoing) ?></p><p class="stat__hint"><?= count($DELIVERIES) - count($ongoing) ?> delivered / cancelled</p></div>
+  <div class="stat"><p class="stat__label">Ongoing deliveries</p><p class="stat__value"><?= count($ongoing) ?></p><p class="stat__hint"><?= count($closedDeliveries) ?> delivered / cancelled</p></div>
 </div>
 
 <div class="grid grid--2" style="margin-top:1.2rem">
