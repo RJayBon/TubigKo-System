@@ -153,6 +153,16 @@ function load_payment_methods(bool $enabledOnly = false): array
     }, $rows);
 }
 
+function update_payment_method_status(int $id, string $status, ?string &$error = null): bool
+{
+    if (!in_array($status, ['enabled', 'disabled'], true)) {
+        $error = 'Invalid payment method status.';
+        return false;
+    }
+
+    return db_exec('UPDATE payment_methods SET status = ? WHERE id = ?', [$status, $id], $error);
+}
+
 function load_payments(?int $customerId = null): array
 {
     $sql = "SELECT p.*, u.full_name AS customer_name, d.order_code

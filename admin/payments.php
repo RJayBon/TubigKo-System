@@ -8,11 +8,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_verify()) {
         flash_set('error', 'Your session expired. Please try again.');
     } else {
-        $id = (int)($_POST['id'] ?? 0);
-        $status = $_POST['status'] ?? '';
-        if (in_array($status, ['paid', 'failed', 'pending', 'refunded'], true)) {
-            $ok = update_payment_status($id, $status, $err);
-            flash_set($ok ? 'success' : 'error', $ok ? 'Payment status updated.' : ($err ?: 'Update failed.'));
+        $action = $_POST['action'] ?? 'update_payment_status';
+
+        if ($action === 'toggle_payment_method') {
+            $methodId = (int)($_POST['method_id'] ?? 0);
+            $methodStatus = $_POST['method_status'] ?? '';
+            if (in_array($methodStatus, ['enabled', 'disabled'], true)) {
+                $ok = update_payment_method_status($methodId, $methodStatus, $err);
+                flash_set($ok ? 'success' : 'error', $ok ? 'Payment method availability updated.' : ($err ?: 'Update failed.'));
+            } else {
+                flash_set('error', 'Invalid payment method status.');
+            }
+        } else {
+            $id = (int)($_POST['id'] ?? 0);
+            $status = $_POST['status'] ?? '';
+            if (in_array($status, ['paid', 'failed', 'pending', 'refunded'], true)) {
+                $ok = update_payment_status($id, $status, $err);
+                flash_set($ok ? 'success' : 'error', $ok ? 'Payment status updated.' : ($err ?: 'Update failed.'));
+            }
         }
     }
     header('Location: payments.php');
@@ -38,7 +51,7 @@ $PAYMENTS = load_payments();
   </div>
   <div class="table-wrap">
     <table id="methodTable">
-      <thead><tr><th>Code</th><th>Method</th><th>Provider</th><th>Service fee</th><th>Availability</th></tr></thead>
+      <thead><tr><th>Code</th><th>Method</th><th>Provider</th><th>Service fee</th><th>Availability</th><th class="no-print">Action</th></tr></thead>
       <tbody>
       <?php foreach ($PAYMENT_METHODS as $m): ?>
         <tr>
@@ -47,6 +60,15 @@ $PAYMENTS = load_payments();
           <td><?= e($m['provider']) ?></td>
           <td><?= $m['fee'] ? peso($m['fee']) : 'No fee' ?></td>
           <td><span class="<?= badge_class($m['status']) ?>"><?= e($m['status']) ?></span></td>
+          <td class="no-print">
+            <form method="post" action="payments.php">
+              <?= csrf_field() ?>
+              <input type="hidden" name="action" value="toggle_payment_method">
+              <input type="hidden" name="method_id" value="<?= (int)$m['db_id'] ?>">
+              <input type="hidden" name="method_status" value="<?= strtolower($m['status']) === 'enabled' ? 'disabled' : 'enabled' ?>">
+              <button class="btn btn--sm <?= strtolower($m['status']) === 'enabled' ? 'btn--ghost' : '' ?>" type="submit"><?= strtolower($m['status']) === 'enabled' ? 'Disable' : 'Enable' ?></button>
+            </form>
+          </td>
         </tr>
       <?php endforeach; ?>
       </tbody>
