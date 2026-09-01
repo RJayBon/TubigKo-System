@@ -35,7 +35,6 @@ $DELIVERIES = load_deliveries();
       <p class="lead">TubigKo handles customer accounts, gallon inventory, payments, delivery process and notifications in one simple system for your refilling station.</p>
       <div class="hero__actions">
         <a class="btn btn--light" href="customer/gallons.php">Order gallons</a>
-        <a class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.35)" href="admin/dashboard.php">Admin panel</a>
       </div>
       <div class="hero__stats">
         <div><b><?= count($CUSTOMERS) ?>+</b><span>Registered customers</span></div>
