@@ -45,6 +45,7 @@ img{max-width:100%}
 .hero p.lead{margin-top:1rem;font-size:1.05rem;color:#cfeaf1;max-width:46ch}
 .hero__actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:2rem}
 .hero__nav-actions{display:flex;gap:.6rem;align-items:center}
+.hero__nav-auth{display:inline-flex;gap:.6rem;align-items:center}
 .hero__stats{display:flex;gap:2rem;margin-top:3rem;flex-wrap:wrap}
 .hero__stats b{display:block;font-size:1.6rem}
 .hero__stats span{color:#a9d8e4;font-size:.85rem}
@@ -194,6 +195,7 @@ textarea{min-height:120px;resize:vertical}
   .hero__nav .brand strong{font-size:1rem}
   .hero__nav .brand small{display:block;max-width:120px;line-height:1.35}
   .hero__nav-actions{gap:.35rem;flex:none}
+  .hero__nav-auth{display:none}
   .hero__nav-actions .btn{padding:.55rem .7rem;font-size:.8rem;white-space:nowrap}
   .hero__body{gap:2rem;padding:2.2rem .9rem 2.8rem}
   .hero h2{font-size:clamp(2rem,9.5vw,2.7rem);line-height:1.08}

@@ -25,8 +25,10 @@ $DELIVERIES = load_deliveries();
       <?php if (is_logged_in() && current_role() === 'customer'): ?>
         <a class="btn btn--light" href="customer/gallons.php">Dashboard</a>
       <?php else: ?>
-        <a class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.35)" href="login.php">Sign in</a>
-        <a class="btn btn--light" href="register.php">Register</a>
+        <span class="hero__nav-auth">
+          <a class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.35)" href="login.php">Sign in</a>
+          <a class="btn btn--light" href="register.php">Register</a>
+        </span>
       <?php endif; ?>
     </div>
   </nav>
