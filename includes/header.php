@@ -31,7 +31,7 @@ $__unread = $__me ? (int)(db_one(
   <main class="main">
     <header class="topbar">
       <button class="icon-btn only-mobile" id="menuToggle" aria-label="Toggle menu">&#9776;</button>
-      <div>
+      <div class="topbar__identity">
         <h1 class="topbar__title"><?= htmlspecialchars($PAGE_TITLE) ?></h1>
         <p class="topbar__sub"><?= $ROLE === 'admin' ? 'Administrator workspace' : 'Customer workspace' ?><?= $__me ? ' &middot; ' . e($__me['full_name']) : '' ?></p>
       </div>

@@ -13,7 +13,7 @@ $GALLONS = load_gallons();
   <div class="step"><b>3</b> Delivery</div>
 </div>
 
-<div class="grid" style="grid-template-columns:minmax(0,2.2fr) minmax(260px,1fr)">
+<div class="grid gallon-layout">
   <section class="card">
     <div class="card__head">
       <h3>View Per Gallon</h3>
@@ -44,7 +44,7 @@ $GALLONS = load_gallons();
     </div>
   </section>
 
-  <aside class="card" style="align-self:start;position:sticky;top:88px">
+  <aside class="card gallon-selection">
     <div class="card__head"><h3>My selection</h3><span class="spacer badge" id="cartCount">0</span></div>
     <div class="card__body">
       <div id="cartLines"></div>
