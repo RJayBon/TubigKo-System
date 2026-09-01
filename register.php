@@ -41,8 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Registration is always for a customer account — a submitted
         // "role" field, if any, is ignored so nobody can self-register as admin.
 
-        if ($firstName === '' || $lastName === '' || $email === '' || $phone === '' || $address === '') {
+        if ($firstName === '' || $lastName === '' || $email === '' || $phone === '' || $address === '' || $barangay === '') {
             $errors[] = 'Please fill in all required fields.';
+        }
+        if ($barangay !== '' && !preg_match('/^[\\p{L}]+(?:[ ]+[\\p{L}]+)*$/u', $barangay)) {
+            $errors[] = 'Barangay may contain letters and spaces only.';
         }
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'Please enter a valid email address.';
@@ -118,11 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="field"><label for="address">Complete delivery address</label><input id="address" name="address" value="<?= e($old['address'] ?? '') ?>" required></div>
       <div class="form-row">
         <div class="field"><label for="brgy">Barangay</label>
-          <select id="brgy" name="barangay">
-            <?php foreach (['Brgy. San Roque','Brgy. Poblacion','Brgy. Malaya','Brgy. Bagong Silang'] as $b): ?>
-              <option <?= ($old['barangay'] ?? '') === $b ? 'selected' : '' ?>><?= e($b) ?></option>
-            <?php endforeach; ?>
-          </select>
+          <input id="brgy" name="barangay" value="<?= e($old['barangay'] ?? '') ?>" maxlength="80" autocomplete="address-level3" required pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+(?: [A-Za-zÀ-ÖØ-öø-ÿ]+)*" title="Use letters and spaces only.">
+          <small class="hint">Letters and spaces only. Numbers and symbols are removed automatically.</small>
         </div>
         <div class="field"><label for="landmark">Landmark (optional)</label><input id="landmark" name="landmark" value="<?= e($old['landmark'] ?? '') ?>"></div>
       </div>

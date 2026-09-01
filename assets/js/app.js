@@ -230,6 +230,38 @@
     });
   });
 
+  // Registration Barangay field: keep only Unicode letters and spaces.
+  // The input event also catches browser autofill and pasted content; the
+  // paste/drop handlers sanitize the clipboard payload before insertion.
+  var barangayInput = document.getElementById("brgy");
+  if (barangayInput) {
+    function sanitizeBarangay(value) {
+      return String(value)
+        .replace(/[^\p{L} ]/gu, "")
+        .replace(/ {2,}/g, " ")
+        .replace(/^ +/, "");
+    }
+
+    barangayInput.addEventListener("input", function () {
+      var clean = sanitizeBarangay(barangayInput.value);
+      if (clean !== barangayInput.value) barangayInput.value = clean;
+    });
+
+    barangayInput.addEventListener("paste", function (event) {
+      event.preventDefault();
+      var pasted = event.clipboardData ? event.clipboardData.getData("text") : "";
+      var clean = sanitizeBarangay(pasted);
+      var start = barangayInput.selectionStart || 0;
+      var end = barangayInput.selectionEnd || start;
+      barangayInput.setRangeText(clean, start, end, "end");
+      barangayInput.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
+    barangayInput.addEventListener("drop", function (event) {
+      event.preventDefault();
+    });
+  }
+
   // Checkout form (customer/payment.php): inject the cart as JSON right
   // before the normal POST submit. The server recalculates every total.
   var checkoutForm = document.getElementById("checkoutForm");
