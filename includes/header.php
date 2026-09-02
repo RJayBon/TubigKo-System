@@ -8,8 +8,11 @@ $ROLE = $ROLE ?? 'admin';
 $__me = current_user();
 $__initials = 'U';
 if ($__me && trim($__me['full_name']) !== '') {
-    $__parts = preg_split('/\s+/', trim($__me['full_name']));
-    $__initials = strtoupper(substr($__parts[0], 0, 1) . substr(end($__parts), 0, 1));
+    $__parts = array_values(array_filter(preg_split('/\s+/', trim($__me['full_name']))));
+    $first = function (string $part): string {
+        return function_exists('mb_substr') ? mb_substr($part, 0, 1, 'UTF-8') : substr($part, 0, 1);
+    };
+    $__initials = strtoupper($first($__parts[0]) . (isset($__parts[1]) ? $first($__parts[1]) : ''));
 }
 $__unread = $__me ? (int)(db_one(
     'SELECT COUNT(*) AS c FROM notifications WHERE (user_id = ? OR user_id IS NULL) AND is_read = 0',
@@ -33,7 +36,7 @@ $__unread = $__me ? (int)(db_one(
       <button class="icon-btn only-mobile" id="menuToggle" aria-label="Toggle menu">&#9776;</button>
       <div class="topbar__identity">
         <h1 class="topbar__title"><?= htmlspecialchars($PAGE_TITLE) ?></h1>
-        <p class="topbar__sub"><?= $ROLE === 'admin' ? 'Administrator workspace' : 'Customer workspace' ?><?= $__me ? ' &middot; ' . e($__me['full_name']) : '' ?></p>
+        <p class="topbar__sub"><?= $ROLE === 'admin' ? 'Administrator workspace' : 'Customer workspace' ?><?php if ($__me): ?> &middot; <span class="topbar__user-name"><?= e($__me['full_name']) ?></span><span class="topbar__user-initials" aria-label="Signed-in user initials"><?= e($__initials) ?></span><?php endif; ?></p>
       </div>
       <div class="topbar__right">
         <?php if ($ROLE !== 'admin'): ?>

@@ -78,6 +78,7 @@ img{max-width:100%}
 .topbar{display:flex;align-items:center;gap:1rem;padding:1.1rem clamp(1rem,3vw,2rem);background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
 .topbar__identity{min-width:0}
 .topbar__identity .topbar__sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar__user-initials{display:none}
 .topbar__title{font-size:1.25rem}
 .topbar__sub{font-size:.8rem;color:var(--ink-soft)}
 .topbar__right{margin-left:auto;display:flex;align-items:center;gap:.6rem}
@@ -227,6 +228,8 @@ textarea{min-height:120px;resize:vertical}
   .topbar{gap:.5rem;padding:.8rem .75rem;align-items:center}
   .topbar__title{font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .topbar__sub{font-size:.7rem}
+  .topbar__user-name{display:none}
+  .topbar__user-initials{display:inline;font-weight:700}
   .topbar__right{gap:.35rem;flex-shrink:0}
   .topbar__right .btn{padding:.5rem .65rem;font-size:.78rem;white-space:nowrap}
   .avatar{width:34px;height:34px}
