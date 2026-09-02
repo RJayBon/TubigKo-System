@@ -357,6 +357,29 @@
     });
   }
 
+  // Test-only payment panels: show only the panel matching the selected method.
+  var paymentRadios = document.querySelectorAll("#checkoutForm input[name='payment_method']");
+  var paymentPanels = document.querySelectorAll("[data-payment-panel]");
+  function updatePaymentPanel() {
+    var selected = document.querySelector("#checkoutForm input[name='payment_method']:checked");
+    var kind = selected ? selected.getAttribute("data-payment-kind") : "other";
+    paymentPanels.forEach(function (panel) {
+      var active = panel.getAttribute("data-payment-panel") === kind;
+      panel.hidden = !active;
+      panel.querySelectorAll("input").forEach(function (input) {
+        input.required = active && input.name !== "test_card_name" ? true : (active && input.name === "test_card_name");
+      });
+    });
+  }
+  paymentRadios.forEach(function (radio) { radio.addEventListener("change", updatePaymentPanel); });
+  updatePaymentPanel();
+
+  ["testCardNumber", "testCardCvv"].forEach(function (id) {
+    var input = document.getElementById(id);
+    if (!input) return;
+    input.addEventListener("input", function () { input.value = input.value.replace(/\D/g, ""); });
+  });
+
   // Checkout form (customer/payment.php): inject the cart as JSON right
   // before the normal POST submit. The server recalculates every total.
   var checkoutForm = document.getElementById("checkoutForm");
