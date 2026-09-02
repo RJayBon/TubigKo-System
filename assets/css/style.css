@@ -191,7 +191,8 @@ textarea{min-height:120px;resize:vertical}
 .payment-test-notice{display:grid;gap:.25rem;background:var(--warn-bg);border-color:#f0d69d;color:var(--warn);font-size:.82rem}
 .payment-test-notice span,.payment-panel .muted{font-size:.8rem}
 .payment-panel h4{font-size:.95rem;margin-bottom:.35rem;color:var(--aqua-800)}
-.payment-demo-qr{display:grid;place-items:center;width:112px;height:112px;margin:.8rem 0;border:8px solid #fff;outline:1px solid var(--line);background:repeating-linear-gradient(45deg,#0f2a33 0 6px,#fff 6px 12px);color:#fff;text-align:center;font-size:.8rem;font-weight:800;line-height:1.1;text-shadow:0 1px 2px #000}
+.payment-demo-qr{display:grid;place-items:center;width:180px;height:180px;margin:.8rem 0;padding:.45rem;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(15,42,51,.08)}
+.payment-demo-qr img{display:block;width:100%;height:100%;object-fit:contain}
 .payment-demo-instructions{display:grid;gap:.25rem;margin:.8rem 0;padding:.8rem;border-radius:10px;background:#fff;font-size:.82rem}
 .empty{padding:2.4rem 1rem;text-align:center;color:var(--ink-soft);font-size:.9rem}
 
