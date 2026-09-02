@@ -366,6 +366,8 @@
     paymentPanels.forEach(function (panel) {
       var active = panel.getAttribute("data-payment-panel") === kind;
       panel.hidden = !active;
+      panel.style.display = active ? "block" : "none";
+      panel.setAttribute("aria-hidden", active ? "false" : "true");
       panel.querySelectorAll("input").forEach(function (input) {
         input.required = active && input.name !== "test_card_name" ? true : (active && input.name === "test_card_name");
       });

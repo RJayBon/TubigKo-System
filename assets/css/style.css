@@ -187,6 +187,7 @@ textarea{min-height:120px;resize:vertical}
 .method:has(input:checked){border-color:var(--aqua-600);background:var(--aqua-100)}
 .method input{width:auto}
 .payment-test-notice,.payment-panel{margin-top:1rem;padding:1rem;border:1px solid var(--line);border-radius:12px;background:#f8fbfc}
+.payment-panel[hidden]{display:none !important}
 .payment-test-notice{display:grid;gap:.25rem;background:var(--warn-bg);border-color:#f0d69d;color:var(--warn);font-size:.82rem}
 .payment-test-notice span,.payment-panel .muted{font-size:.8rem}
 .payment-panel h4{font-size:.95rem;margin-bottom:.35rem;color:var(--aqua-800)}
