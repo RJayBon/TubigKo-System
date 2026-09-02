@@ -24,6 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ok = update_delivery_status($id, $status, $rider !== '' ? $rider : null, $err);
 
             if ($ok && $delivery) {
+                if ($status === 'cancelled') {
+                    restore_delivery_stock($id, $stockErr);
+                }
                 $messages = [
                     'confirmed'        => "Your order {$delivery['order_code']} has been confirmed and is being prepared.",
                     'out_for_delivery' => "Your order {$delivery['order_code']} is out for delivery" . ($rider !== '' ? " with rider $rider" : '') . ". Please prepare your empty containers.",
@@ -34,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             flash_set($ok ? 'success' : 'error', $ok ? 'Delivery updated.' : ($err ?: 'Update failed.'));
+        } else {
+            flash_set('error', 'Invalid delivery status.');
         }
     }
     header('Location: deliveries.php');

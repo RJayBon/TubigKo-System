@@ -20,12 +20,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 flash_set('error', 'Please provide both a title and a message.');
             } else {
                 $userId = null;
+                $audienceLabel = 'All Customers';
                 if ($audience !== 'All Customers') {
-                    $customer = db_one("SELECT id FROM users WHERE full_name = ? AND role = 'customer'", [$audience]);
-                    $userId = $customer['id'] ?? null;
+                    $customerId = filter_var($audience, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                    $customer = $customerId ? db_one("SELECT id, full_name FROM users WHERE id = ? AND role = 'customer'", [$customerId]) : null;
+                    if (!$customer) {
+                        flash_set('error', 'The selected customer is no longer available. Please choose again.');
+                    } else {
+                        $userId = (int)$customer['id'];
+                        $audienceLabel = $customer['full_name'];
+                        $ok = create_notification($userId, $audienceLabel, $title, $message, $type, $err);
+                        flash_set($ok ? 'success' : 'error', $ok ? 'Notification sent.' : ($err ?: 'Could not send notification.'));
+                    }
+                } else {
+                    $ok = create_notification(null, $audienceLabel, $title, $message, $type, $err);
+                    flash_set($ok ? 'success' : 'error', $ok ? 'Notification sent.' : ($err ?: 'Could not send notification.'));
                 }
-                $ok = create_notification($userId, $audience, $title, $message, $type, $err);
-                flash_set($ok ? 'success' : 'error', $ok ? 'Notification sent.' : ($err ?: 'Could not send notification.'));
             }
         } elseif ($action === 'delete') {
             $id = (int)($_POST['id'] ?? 0);
@@ -52,7 +62,7 @@ $NOTIFICATIONS = load_notifications();
           <label for="audience">Send to</label>
           <select id="audience" name="audience">
             <option>All Customers</option>
-            <?php foreach ($CUSTOMERS as $c): ?><option><?= e($c['name']) ?></option><?php endforeach; ?>
+            <?php foreach ($CUSTOMERS as $c): ?><option value="<?= (int)$c['db_id'] ?>"><?= e($c['name']) ?></option><?php endforeach; ?>
           </select>
         </div>
         <div class="field">

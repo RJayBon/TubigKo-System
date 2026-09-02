@@ -263,7 +263,7 @@
   }
 
   // Registration username field: keep only letters, numbers, dots, underscores, and hyphens.
-  var usernameInput = document.getElementById("username");
+  var usernameInput = document.querySelector("[data-register-username]");
   if (usernameInput) {
     function sanitizeUsername(value) {
       return String(value).replace(/[^A-Za-z0-9._-]/g, "").slice(0, 30);

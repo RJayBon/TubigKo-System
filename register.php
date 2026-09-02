@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <form method="post" action="register.php">
       <?= csrf_field() ?>
-      <div class="field"><label for="username">Username</label><input id="username" name="username" value="<?= e($old['username'] ?? '') ?>" minlength="3" maxlength="30" autocomplete="username" required pattern="[A-Za-z0-9._-]{3,30}" title="Use 3-30 letters, numbers, dots, underscores, or hyphens."><small class="hint">Choose 3-30 characters using letters, numbers, dots, underscores, or hyphens.</small></div>
+      <div class="field"><label for="username">Username</label><input id="username" data-register-username name="username" value="<?= e($old['username'] ?? '') ?>" minlength="3" maxlength="30" autocomplete="username" required pattern="[A-Za-z0-9._-]{3,30}" title="Use 3-30 letters, numbers, dots, underscores, or hyphens."><small class="hint">Choose 3-30 characters using letters, numbers, dots, underscores, or hyphens.</small></div>
       <div class="form-row">
         <div class="field"><label for="fname">First name</label><input id="fname" name="first_name" value="<?= e($old['first_name'] ?? '') ?>" maxlength="60" required pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+(?: [A-Za-zÀ-ÖØ-öø-ÿ]+)*" title="Use letters and spaces only."></div>
         <div class="field"><label for="lname">Last name</label><input id="lname" name="last_name" value="<?= e($old['last_name'] ?? '') ?>" maxlength="60" required pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+(?: [A-Za-zÀ-ÖØ-öø-ÿ]+)*" title="Use letters and spaces only."></div>

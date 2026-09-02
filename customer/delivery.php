@@ -10,7 +10,14 @@ $clearCart = isset($_GET['clear_cart']);
 include __DIR__ . '/../includes/header.php';
 
 $mine = load_deliveries((int)$me['id']);
-$active = $mine[0] ?? null;
+$active = null;
+foreach ($mine as $delivery) {
+    if (in_array($delivery['raw_status'], ['pending', 'confirmed', 'out_for_delivery'], true)) {
+        $active = $delivery;
+        break;
+    }
+}
+$active = $active ?? ($mine[0] ?? null);
 
 $canCancel = $active && $active['raw_status'] === 'pending';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cancel') {
@@ -20,8 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cance
         $id = (int)($_POST['id'] ?? 0);
         $row = db_one('SELECT * FROM deliveries WHERE id = ? AND customer_id = ?', [$id, $me['id']]);
         if ($row && $row['status'] === 'pending') {
-            db_exec('UPDATE deliveries SET status = "cancelled" WHERE id = ?', [$id], $err);
-            flash_set('success', 'Your delivery request was cancelled.');
+            $ok = db_exec('UPDATE deliveries SET status = "cancelled" WHERE id = ? AND customer_id = ? AND status = "pending"', [$id, $me['id']], $err);
+            if ($ok) {
+                db_exec('UPDATE payments SET status = "failed" WHERE delivery_id = ? AND customer_id = ? AND status = "pending"', [$id, $me['id']], $paymentErr);
+                restore_delivery_stock($id, $stockErr);
+                flash_set('success', 'Your delivery request was cancelled.');
+            } else {
+                flash_set('error', $err ?: 'Could not cancel this delivery.');
+            }
         } else {
             flash_set('error', 'This order can no longer be cancelled.');
         }

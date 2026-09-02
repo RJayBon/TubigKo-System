@@ -201,6 +201,7 @@ function load_notifications(?int $userId = null, bool $includeBroadcast = true):
         $params = [$userId];
         if ($includeBroadcast) {
             $sql = "SELECT * FROM notifications WHERE user_id = ? OR user_id IS NULL";
+            $params[] = $userId;
         }
     } else {
         $sql = "SELECT * FROM notifications";
@@ -271,6 +272,15 @@ function delete_customer(int $id, ?string &$error = null): bool
     return db_exec('DELETE FROM users WHERE id = ? AND role = "customer"', [$id], $error);
 }
 
+function restore_delivery_stock(int $deliveryId, ?string &$error = null): bool
+{
+    return db_exec(
+        'UPDATE gallons AS g INNER JOIN delivery_items AS di ON di.gallon_id = g.id SET g.stock = g.stock + di.quantity WHERE di.delivery_id = ?',
+        [$deliveryId],
+        $error
+    );
+}
+
 function update_delivery_status(int $id, string $status, ?string $rider = null, ?string &$error = null): bool
 {
     if ($rider !== null && $rider !== '') {
@@ -325,10 +335,28 @@ function create_order(int $customerId, string $address, string $date, string $ti
         $total = 0.0;
         foreach ($cartItems as $item) {
             $gallonId = (int)($item['id'] ?? 0);
-            $qty = max(1, (int)($item['qty'] ?? 1));
-            $gallon = db_one('SELECT * FROM gallons WHERE id = ?', [$gallonId]);
-            if (!$gallon) {
-                continue;
+            $qty = (int)($item['qty'] ?? 0);
+            if ($gallonId <= 0 || $qty <= 0) {
+                $pdo->rollBack();
+                $error = 'The order contains an invalid gallon quantity.';
+                return null;
+            }
+            $gallon = db_one('SELECT * FROM gallons WHERE id = ? FOR UPDATE', [$gallonId]);
+            if (!$gallon || $gallon['status'] !== 'available') {
+                $pdo->rollBack();
+                $error = 'One of the selected gallons is no longer available.';
+                return null;
+            }
+            if ((int)$gallon['stock'] < $qty) {
+                $pdo->rollBack();
+                $error = "Not enough stock is available for {$gallon['name']}. Please reduce the quantity.";
+                return null;
+            }
+            $updated = db_exec('UPDATE gallons SET stock = stock - ? WHERE id = ? AND status = \'available\' AND stock >= ?', [$qty, $gallonId, $qty], $error);
+            if (!$updated) {
+                $pdo->rollBack();
+                $error = $error ?: 'Could not reserve the selected gallon stock.';
+                return null;
             }
             $lineTotal = $qty * (float)$gallon['price_per_gallon'];
             $total += $lineTotal;
